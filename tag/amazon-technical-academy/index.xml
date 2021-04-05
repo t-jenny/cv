@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Amazon Technical Academy | Jenny Tang</title><link>https://tang-jenny.github.io/cv/tag/amazon-technical-academy/</link><atom:link href="https://tang-jenny.github.io/cv/tag/amazon-technical-academy/index.xml" rel="self" type="application/rss+xml"/><description>Amazon Technical Academy</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 29 Mar 2021 00:00:00 +0000</lastBuildDate><image><url>https://tang-jenny.github.io/cv/media/icon_huf3ea07e736d5e1d66a71df5e2fe0b3ce_31666_512x512_fill_lanczos_center_2.png</url><title>Amazon Technical Academy</title><link>https://tang-jenny.github.io/cv/tag/amazon-technical-academy/</link></image><item><title>High Score Leaderboard</title><link>https://tang-jenny.github.io/cv/project/leaderboard/</link><pubDate>Mon, 29 Mar 2021 00:00:00 +0000</pubDate><guid>https://tang-jenny.github.io/cv/project/leaderboard/</guid><description>&lt;h2 id="overview">&lt;strong>Overview&lt;/strong>&lt;/h2>
+&lt;p>Each team (4 students) was tasked with building a REST API from scratch based on a sample business requirement document (BRD). Teams were given eight weeks with two week sprints.&lt;/p>
+&lt;h2 id="my-role">&lt;strong>My Role&lt;/strong>&lt;/h2>
+&lt;p>In addition to being the SCRUM master, I created automated integration testing workflows and set-up our service architecture in our AWS accounts.&lt;/p>
+&lt;h2 id="problem-statement">&lt;strong>Problem Statement&lt;/strong>&lt;/h2>
+&lt;p>Currenty each game created by the games team has to implement score tracking functionality individually, leading to manual churn. This also restricts customers from being able to view their game progress across all their games. The REST API must be &lt;em>1. a consistent mechanism for the games team to track high scores across games&lt;/em> and &lt;em>2. a way for customers to view their high scores across multiple games in one place&lt;/em>.&lt;/p>
+&lt;h2 id="user-stories">&lt;strong>User Stories&lt;/strong>&lt;/h2>
+&lt;p>&lt;em>As a game developer&amp;hellip;&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>I want to submit a score for a given user
+&lt;ul>
+&lt;li>Acceptance Criteria:
+&lt;ul>
+&lt;li>The API must accept the user’s account username&lt;/li>
+&lt;li>The API must accept the name of the game the high score was achieved&lt;/li>
+&lt;li>The API must accept the score value of the user&lt;/li>
+&lt;li>The service must store the date the score was submitted&lt;/li>
+&lt;li>The service must store the updated high scores for the user per game&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>I want to track the top scores for a given game
+&lt;ul>
+&lt;li>Acceptance Criteria:
+&lt;ul>
+&lt;li>The service must store the name of the game the high score was made&lt;/li>
+&lt;li>The service must store the score value of the user&lt;/li>
+&lt;li>The service must store the username of the player&lt;/li>
+&lt;li>The service must store the date the score was submitted&lt;/li>
+&lt;li>The service must return the scores in descending order&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>I want to allow users to download their high scores across games
+&lt;ul>
+&lt;li>Acceptance Criteria:
+&lt;ul>
+&lt;li>The API must return a URL to a JSON file stored in S3&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>I want to allow users to download the top 10 scores for a single game
+&lt;ul>
+&lt;li>Acceptance Criteria:
+&lt;ul>
+&lt;li>The API must return a URL to a JSON file stored in S3&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="out-of-scope">&lt;strong>Out of Scope&lt;/strong>&lt;/h2>
+&lt;p>Key features out of scope include:&lt;/p>
+&lt;ul>
+&lt;li>a front end&lt;/li>
+&lt;li>API integration with other Amazon teams&lt;/li>
+&lt;li>username authentication&lt;/li>
+&lt;/ul>
+&lt;h2 id="architecture">&lt;strong>Architecture&lt;/strong>&lt;/h2>
+&lt;p>&lt;img src="architecture.png" alt="architecture">&lt;/p>
+&lt;p>Built with &lt;em>Amazon API Gateway&lt;/em> and &lt;em>AWS Lambda&lt;/em>, the back-end REST API consisted of 6 endpoints coded with Java:&lt;/p>
+&lt;ul>
+&lt;li>GetUserScores&lt;/li>
+&lt;li>AddUserScore&lt;/li>
+&lt;li>GetGameScores&lt;/li>
+&lt;li>GetUserHighestScores&lt;/li>
+&lt;li>DeleteUserScore&lt;/li>
+&lt;li>GetIdentity&lt;/li>
+&lt;/ul>
+&lt;h3 id="table-design">&lt;strong>Table Design&lt;/strong>&lt;/h3>
+&lt;p>Our service used 1 DynamoDB table and 1 global secondary index (GSI).&lt;/p>
+&lt;p>&lt;em>Scores&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>userName // partition key, string&lt;/li>
+&lt;li>timestamp // sort key, string&lt;/li>
+&lt;li>gameName // string&lt;/li>
+&lt;li>score // number&lt;/li>
+&lt;/ul>
+&lt;p>&lt;em>TopScoresForGameIndex&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>projection: ALL&lt;/li>
+&lt;li>gameName // hash key&lt;/li>
+&lt;li>score // story key&lt;/li>
+&lt;/ul>
+&lt;h3 id="alternatives">&lt;strong>Alternatives&lt;/strong>&lt;/h3>
+&lt;p>&lt;em>1. AWS Fargate vs AWS Lambda&lt;/em>&lt;/p>
+&lt;p>Fargate does not have Lambda&amp;rsquo;s cold-start issue and allows longer connection persistence which would have been beneficial if either 1. customers expected to see their high-scores immediately (within 5 seconds of their request) or 2. their scores required 10+ minutes to retrieve/save in DynamoDB. Given the rarity of both situations, we could not justify the added burden of managing Fargate’s dockers.&lt;/p>
+&lt;p>&lt;em>2. Amazon DynamoDB or Amazon RDS/Aurora&lt;/em>&lt;/p>
+&lt;p>We only needed one table to meet all of our use cases. Therefore, it made sense for us to use DynamoDB (non-relational database) as opposed to Aurora (relational database).&lt;/p>
+&lt;h3 id="class-diagram">&lt;strong>Class Diagram&lt;/strong>&lt;/h3>
+&lt;p>&lt;img src="class.png" alt="class diagram">&lt;/p>
+&lt;h2 id="demo">&lt;strong>Demo&lt;/strong>&lt;/h2>
+&lt;video controls >
+&lt;source src="https://tang-jenny.github.io/cv/cv/project/leaderboard/demo.mp4" type="video/mp4">
+&lt;/video></description></item><item><title>Stock Alert System</title><link>https://tang-jenny.github.io/cv/project/stocks/</link><pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate><guid>https://tang-jenny.github.io/cv/project/stocks/</guid><description>&lt;h2 id="overview">&lt;strong>Overview&lt;/strong>&lt;/h2>
+&lt;p>Each team (4 students) was tasked with an open-ended prompt to create a back-end REST API and front-end site which saves and retrieves data with &lt;em>Amazon DynamoDB&lt;/em>. Pre-made back-end and front-end architecture and automated testing workflows were provided. Teams were given four weeks with weekly sprints.&lt;/p>
+&lt;h2 id="my-role">&lt;strong>My Role&lt;/strong>&lt;/h2>
+&lt;p>In addition contributing to front-end and back-end development, I was the SCRUM master and lead designer.&lt;/p>
+&lt;h2 id="problem-statement">&lt;strong>Problem Statement&lt;/strong>&lt;/h2>
+&lt;p>With stock prices fluctuating constantly, it is difficult for amateur investors to know when a stock falls below a specific price. Project Jupiter is a stock alert system that will provide price tracking and notification functionality to meet an amateur investor&amp;rsquo;s needs. Customers to the site will be able to &lt;em>1. Check a stock&amp;rsquo;s historical price history&lt;/em> and &lt;em>2. Receive notifications on stocks of interest&lt;/em>.&lt;/p>
+&lt;h2 id="user-stories">&lt;strong>User Stories&lt;/strong>&lt;/h2>
+&lt;p>&lt;em>As a Jupiter customer&amp;hellip;&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>I want to view the price history of a stock on the site, so that I can make a more informed purchasing decision.&lt;/li>
+&lt;li>I want to add to an interest list, so that I can easily access the price history for stocks I am interested in.&lt;/li>
+&lt;li>I want to remove a stock from my interest list, so that I do not have to see stocks I am no longer interested in.&lt;/li>
+&lt;li>I want to view all of the stocks I am tracking on one page, so that I can easily access the price history for the stocks I am interested in.&lt;/li>
+&lt;li>I want to see what are the most tracked stocks on the site, so that I may also track them, if I am interested.&lt;/li>
+&lt;li>I want to receive an alert when a stock of interest drops below my alert price, so that I know immediately that I can purchase the stock below my ask price.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;em>As a Jupiter developer&amp;hellip;&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>I want to update an item&amp;rsquo;s price, so that I can build the price history for an item.&lt;/li>
+&lt;/ul>
+&lt;h2 id="out-of-scope">&lt;strong>Out of Scope&lt;/strong>&lt;/h2>
+&lt;p>Key features out of scope include:&lt;/p>
+&lt;ul>
+&lt;li>alerts outside of site (ex. text messages, iPhone notifications, e-mails)&lt;/li>
+&lt;li>price granularity beyond daily closing price&lt;/li>
+&lt;/ul>
+&lt;h2 id="architecture">&lt;strong>Architecture&lt;/strong>&lt;/h2>
+&lt;p>Built with &lt;em>Amazon API Gateway&lt;/em> and &lt;em>AWS Lambda&lt;/em>, the back-end REST API consisted of 7 endpoints coded in Java:&lt;/p>
+&lt;ul>
+&lt;li>GetPriceHistory&lt;/li>
+&lt;li>GetTopStocks&lt;/li>
+&lt;li>GetPriceAlerts&lt;/li>
+&lt;li>UpdateStockPrice&lt;/li>
+&lt;li>UpdateUserAlert&lt;/li>
+&lt;li>DeleteUserAlert&lt;/li>
+&lt;li>GetAlertListByUser&lt;/li>
+&lt;/ul>
+&lt;p>The front end used Google&amp;rsquo;s &lt;em>Material Design Lite&lt;/em> framework.&lt;/p>
+&lt;h3 id="table-design">&lt;strong>Table Design&lt;/strong>&lt;/h3>
+&lt;p>Our service used 3 DynamoDB tables.&lt;/p>
+&lt;p>&lt;em>Stocks&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>symbol // partition key, string&lt;/li>
+&lt;li>company // string&lt;/li>
+&lt;li>description // string&lt;/li>
+&lt;/ul>
+&lt;p>&lt;em>PriceHistory&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>symbol // partition key, string&lt;/li>
+&lt;li>timestamp // sort key, string&lt;/li>
+&lt;li>close // number&lt;/li>
+&lt;/ul>
+&lt;p>&lt;em>UserAlerts&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>userId // partition key, string&lt;/li>
+&lt;li>symbol // sort key, string&lt;/li>
+&lt;li>alertPrice // number&lt;/li>
+&lt;/ul>
+&lt;h3 id="example-sequence-diagram">&lt;strong>Example Sequence Diagram&lt;/strong>&lt;/h3>
+&lt;p>&lt;img src="sequence.png" alt="sequence diagram">&lt;/p>
+&lt;h2 id="mock">&lt;strong>Mock&lt;/strong>&lt;/h2>
+&lt;p>&lt;img src="mockup.png" alt="UI mock-up">&lt;/p>
+&lt;h2 id="final-product">&lt;strong>Final Product&lt;/strong>&lt;/h2>
+&lt;p>&lt;img src="watchlist.png" alt="watched stocks list">
+&lt;img src="update.png" alt="update alert price">
+&lt;img src="alert.png" alt="sample alert">&lt;/p></description></item></channel></rss>
